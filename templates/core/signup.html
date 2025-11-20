@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册 - 康途同行</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+    <link rel="stylesheet" href="/static/css/theme.css">
+</head>
+<body class="bg-base-200 flex items-center justify-center min-h-screen">
+
+<div class="card w-3/5 bg-base-100 shadow-xl mt-20 mb-20">
+    <div class="card-body">
+        <h2 class="card-title text-center text-[--dark-color] text-bold">用户注册</h2>
+        <form method="post">
+            {% csrf_token %}
+            <!-- 用户基础信息 -->
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">用户名</span>
+                </label>
+                <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="请输入用户名"
+                        class="input input-bordered rounded-md w-full"
+                        required
+                        onblur="checkUsername()"
+                />
+                <p id="username-error" class="text-red-500 text-sm hidden">用户名已存在，请重新输入</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">姓</span>
+                    </label>
+                    <input
+                            type="text"
+                            name="last_name"
+                            placeholder="请输入您的姓"
+                            class="input input-bordered rounded-md w-full"
+                            required
+                    />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">名</span>
+                    </label>
+                    <input
+                            type="text"
+                            name="first_name"
+                            placeholder="请输入您的名"
+                            class="input input-bordered rounded-md w-full"
+                            required
+                    />
+                </div>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">邮箱</span>
+                </label>
+                <input type="email" name="email" placeholder="请输入您的邮箱"
+                       class="input input-bordered  rounded-md w-full" required/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">密码</span>
+                </label>
+                <input type="password" id="password" name="password" placeholder="请输入您的密码"
+                       class="input input-bordered  rounded-md w-full" required/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">确认密码</span>
+                </label>
+                <input
+                        type="password"
+                        id="password_confirm"
+                        name="password_confirm"
+                        placeholder="请再次输入密码"
+                        class="input input-bordered rounded-md w-full"
+                        required
+                        onblur="checkPasswordsMatch()"
+                />
+                <p id="password-error" class="text-red-500 text-sm hidden">两次输入密码不一致</p>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">出生日期</span>
+                </label>
+                <input type="date" name="birthday" class="input input-bordered  rounded-md w-full" required/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">性别</span>
+                </label>
+                <select name="gender" class="select select-bordered" required>
+                    <option value="True">男</option>
+                    <option value="False">女</option>
+                </select>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">手机号码</span>
+                </label>
+                <input type="text" name="phone_number" placeholder="请输入您的手机号码"
+                       class="input input-bordered  rounded-md w-full" required/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">请选择身份</span>
+                </label>
+                <select name="user_type" id="user_type" class="select select-bordered" onchange="toggleProfileFields()"
+                        required>
+                    <option value="patient" selected>患者</option>
+                    <option value="doctor">医生</option>
+                </select>
+            </div>
+
+            <!-- 医生信息表单 -->
+            <div id="doctor_fields" class="hidden">
+                <h3 class="text-lg font-bold mt-4">医生信息</h3>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">医院</span>
+                    </label>
+                    <input type="text" name="hospital" placeholder="请输入医院名称"
+                           class="input input-bordered  rounded-md w-full"/>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">专长</span>
+                    </label>
+                    <input type="text" name="specialization" placeholder="请输入专长"
+                           class="input input-bordered  rounded-md w-full"/>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">执业证书编号</span>
+                    </label>
+                    <input type="text" name="license_number" placeholder="请输入执业证书编号"
+                           class="input input-bordered  rounded-md w-full"/>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">职位</span>
+                    </label>
+                    <select name="position" class="select select-bordered">
+                        <option value="chief">主任</option>
+                        <option value="associate_chief">副主任</option>
+                        <option value="attending">主治医师</option>
+                        <option value="resident">住院医师</option>
+                        <option value="consultant">顾问</option>
+                        <option value="intern">实习生</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 患者信息表单 -->
+            <div id="patient_fields">
+                <h3 class="text-lg font-bold mt-4">患者信息</h3>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">身高 (米)</span>
+                    </label>
+                    <input type="text" name="height" placeholder="请输入身高"
+                           class="input input-bordered rounded-md w-full"/>
+                    {% if patient_form.height.errors %}
+                        <p class="text-red-500 text-sm">{{ patient_form.height.errors }}</p>
+                    {% endif %}
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">生活习惯</span>
+                    </label>
+                    <textarea
+                            name="living_habits"
+                            placeholder="是否抽烟、喝酒、熬夜、暴饮暴食"
+                            class="textarea textarea-bordered"
+                    ></textarea>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">职业</span>
+                    </label>
+                    <input type="text" name="occupation" placeholder="请输入您的职业"
+                           class="input input-bordered rounded-md w-full"/>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">教育水平</span>
+                    </label>
+                    <select name="educational_level" class="select select-bordered">
+                        <option value="none">无学历</option>
+                        <option value="primary">小学</option>
+                        <option value="secondary">中学</option>
+                        <option value="high_school">高中</option>
+                        <option value="associate">大专</option>
+                        <option value="bachelor">本科</option>
+                        <option value="master">硕士</option>
+                        <option value="doctorate">博士</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">血型</span>
+                    </label>
+                    <select name="blood_type" class="select select-bordered">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="O">O</option>
+                        <option value="AB">AB</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">家族病史</span>
+                    </label>
+                    <textarea name="family_history" placeholder="请输入家族病史"
+                              class="textarea textarea-bordered"></textarea>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">当前诊断</span>
+                    </label>
+                    <textarea name="current_diagnosis" placeholder="请输入当前诊断"
+                              class="textarea textarea-bordered"></textarea>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">病史</span>
+                    </label>
+                    <textarea name="medical_history" placeholder="请输入病史"
+                              class="textarea textarea-bordered"></textarea>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">用药情况</span>
+                    </label>
+                    <textarea name="medications" placeholder="请输入用药情况"
+                              class="textarea textarea-bordered"></textarea>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">过敏情况</span>
+                    </label>
+                    <textarea name="allergy_info" placeholder="请输入过敏情况"
+                              class="textarea textarea-bordered"></textarea>
+                </div>
+            </div>
+
+            <div class="form-control mt-6">
+                <button type="submit" class="btn bg-[--dark-color] text-white text-bold hover:bg-sky-600">注册</button>
+            </div>
+        </form>
+        <div class="flex justify-center mt-4">
+            <a href="{% url 'login' %}" class="link link-hover hover: text-[--dark-color]">已有账号？点击登录</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 初始化表单显示
+    function initializeFormDisplay() {
+        const userType = document.getElementById("user_type").value;
+        toggleProfileFields(userType);
+    }
+
+    // 动态控制表单显示
+    function toggleProfileFields(userType) {
+        const doctorFields = document.getElementById("doctor_fields");
+        const patientFields = document.getElementById("patient_fields");
+
+        if (userType === "doctor") {
+            doctorFields.classList.remove("hidden");
+            patientFields.classList.add("hidden");
+        } else {
+            patientFields.classList.remove("hidden");
+            doctorFields.classList.add("hidden");
+        }
+    }
+
+    // 页面加载时调用
+    document.addEventListener("DOMContentLoaded", initializeFormDisplay);
+
+    // 下拉框动态绑定
+    document.getElementById("user_type").addEventListener("change", function () {
+        toggleProfileFields(this.value);
+    });
+
+    // 检测用户名是否存在
+    async function checkUsername() {
+        const username = document.getElementById('username').value;
+        const usernameError = document.getElementById('username-error');
+        if (username) {
+            const response = await fetch("{% url 'check_username' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                body: JSON.stringify({username})
+            });
+            const data = await response.json();
+            if (data.exists) {
+                usernameError.classList.remove('hidden');
+                document.getElementById('username').value = '';
+            } else {
+                usernameError.classList.add('hidden');
+            }
+        }
+    }
+
+    // 检测密码是否一致
+    function checkPasswordsMatch() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('password_confirm').value;
+        const passwordError = document.getElementById('password-error');
+        if (password !== confirmPassword) {
+            passwordError.classList.remove('hidden');
+        } else {
+            passwordError.classList.add('hidden');
+        }
+    }
+</script>
+
+</body>
+</html>

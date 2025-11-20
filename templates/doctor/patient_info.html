@@ -1,0 +1,234 @@
+{% extends 'doctor_base.html' %}
+{% block title_block %}
+    <title>患者信息- 康途同行</title>
+{% endblock %}
+{% block css_block %}
+    <style>
+        #menu-patient-manage {
+            background-color: #133e87;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+{% block main_body %}
+    <div class="scrollable-content">
+        <div class="container mx-auto p-6">
+            <!-- 患者个人信息卡片 -->
+            <div class="card card-compact shadow-lg mb-8 w-full sm:w-[90%] mx-auto">
+                <div class="card-body">
+                    <h2 class="text-2xl font-bold mb-4">患者个人信息</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-6">
+                        <!-- 头像部分，宽度占 3/12 -->
+                        <div class="flex justify-center sm:col-span-3">
+                            <img src="{{ patient.user.avatar.url }}" alt="头像" class="w-24 h-24 rounded-full">
+                        </div>
+                        <!-- 个人信息部分，宽度占 9/12 -->
+                        <div class="sm:col-span-9">
+                            <p><strong>姓名:</strong> {{ patient.user.last_name }} {{ patient.user.first_name }}</p>
+                            <p><strong>年龄:</strong> {{ patient.user.birthday|date:"Y" }}</p>
+                            <p><strong>性别:</strong> {% if patient.user.gender %} 男 {% else %} 女 {% endif %}</p>
+                            <p><strong>身高:</strong> {{ patient.height | default:"未知" }} m</p>
+                            <p><strong>血型:</strong> {{ patient.blood_type | default:"未知" }}</p>
+                            <p><strong>职业:</strong> {{ patient.occupation | default:"未知" }}</p>
+                            <p><strong>学历:</strong> {{ patient.get_educational_level_display | default:"未知" }}</p>
+                            <p><strong>电话:</strong> {{ patient.user.phone_number| default:"无" }}</p>
+                        </div>
+                    </div>
+                    <!-- 分隔线 -->
+                    <hr class="my-6 border-t border-gray-300">
+                    <h2 class="text-2xl font-bold mb-4">病历信息</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xl font-semibold">当前诊断:</h4>
+                            <button class="btn btn-sm bg-[#133e87] text-white rounded-md hover:bg-sky-700"
+                                    onclick="openEditModal('current_diagnosis', '{{ patient.current_diagnosis|default:"无" }}', {{ patient.id }})">
+                                修改
+                            </button>
+                        </div>
+                        <p>{{ patient.current_diagnosis|default:"无" }}</p>
+
+                        <!-- 治疗目标 -->
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xl font-semibold">治疗目标:</h4>
+                            <button class="btn btn-sm bg-[#133e87] text-white rounded-md hover:bg-sky-700"
+                                    onclick="openEditModal('therapeutic_goal', '{{ therapeutic_goal |default:"无" }}', {{ patient.id }})">
+                                修改
+                            </button>
+                        </div>
+                        <p>{{ therapeutic_goal |default:"无" }}</p>
+
+                        <div>
+                            <h4 class="text-xl font-semibold">病历:</h4>
+                            <p>{{ patient.medical_history|default:"无" }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold">家族病史:</h4>
+                            <p>{{ patient.family_history|default:"无" }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold">过敏信息:</h4>
+                            <p>{{ patient.allergy_info|default:"无" }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold">药物使用:</h4>
+                            <p>{{ patient.medications|default:"无" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近药物摄入卡片 -->
+            <div class="card shadow-lg mb-8 w-full sm:w-[90%] mx-auto">
+                <div class="card-body">
+                    <h2 class="text-2xl font-bold mb-4">最近药物摄入记录</h2>
+                    <div class="overflow-x-auto mb-8">
+                        <table class="table table-zebra w-full">
+                            <thead>
+                                <tr>
+                                    <th>记录时间</th>
+                                    <th>药物名称</th>
+                                    <th>剂量</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in medication_records %}
+                                <tr>
+                                    <td>{{ record.record_time|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ record.drug }}</td>
+                                    <td>{{ record.dosage }}</td>
+                                    <td>{{ record.notes|default:"--" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- 患者健康数据卡片 -->
+            <div class="card shadow-lg mb-8 w-full sm:w-[90%] mx-auto">
+                <div class="card-body">
+                    <h2 class="text-2xl font-bold mb-4">健康数据</h2>
+                    <div class="overflow-x-auto mb-8">
+                        <table class="table table-zebra w-full">
+                            <thead>
+                            <tr>
+                                <th>记录时间</th>
+                                <th>体重 (kg)</th>
+                                <th>收缩压 (mmHg)</th>
+                                <th>舒张压 (mmHg)</th>
+                                <th>脉搏 (次/分)</th>
+                                <th>体温 (°C)</th>
+                                <th>血糖 (mmol/L)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for record in health_data %}
+                                <tr>
+                                    <td>{{ record.record_time|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ record.weight|default:"--" }}</td>
+                                    <td>{{ record.systolic_bp|default:"--" }}</td>
+                                    <td>{{ record.diastolic_bp|default:"--" }}</td>
+                                    <td>{{ record.pulse_rate|default:"--" }}</td>
+                                    <td>{{ record.body_temperature|default:"--" }}</td>
+                                    <td>{{ record.blood_sugar|default:"--" }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        
+        
+            <!-- DaiUI 弹窗 -->
+            <dialog id="editModal" class="modal">
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg mb-4" id="modalTitle">修改</h3>
+                    
+                    <form id="editForm">
+                        {% csrf_token %}
+                        <div class="form-control mb-4">
+                            <label class="label">
+                                <span class="label-text" id="fieldTitle">当前诊断</span>
+                            </label>
+                            <input type="text" id="editInput" class="input input-bordered rounded-md" required/>
+                        </div>
+
+                        <div class="modal-action">
+                            <button type="button" class="btn btn-sm bg-[#133e87] text-white rounded-md hover:bg-sky-700" onclick="submitEdit()">确认修改</button>
+                            <button type="button" class="btn btn-sm bg-[#133e87] text-white rounded-md hover:bg-sky-700" onclick="closeEditModal()">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </dialog>
+        </div>
+    </div>
+
+    <script>
+        let currentField = '';  // 当前修改的字段
+        let currentPatientId = null;  // 当前修改的患者 ID
+
+        // 打开弹窗并填充数据
+        function openEditModal(field, currentValue, patientId) {
+            currentField = field;
+            currentPatientId = patientId;
+            document.getElementById('modalTitle').textContent = field === 'current_diagnosis' ? '修改 当前诊断' : '修改 治疗目标';
+            document.getElementById('fieldTitle').textContent = field === 'current_diagnosis' ? '当前诊断' : '治疗目标';
+            document.getElementById('editInput').value = currentValue;
+
+            // 打开弹窗
+            const modal = document.getElementById('editModal');
+            modal.showModal();
+        }
+
+        // 关闭弹窗
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            modal.close();
+        }
+
+        // 提交修改
+        function submitEdit() {
+    const newValue = document.getElementById('editInput').value;
+    if (!newValue.trim()) {
+        alert('请填写修改内容');
+        return;
+    }
+
+    // 获取 CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // 使用 AJAX 提交修改
+    fetch('{% url "dr_patient_update_patient_info" %}', {
+        method: 'POST',
+        body: JSON.stringify({
+            'patient_id': {{ patient.user.id }},  // 当前患者 ID
+            'field': currentField,
+            'new_value': newValue,
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,  // 将 CSRF token 添加到请求头
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('修改成功！');
+            location.reload();  // 刷新页面显示更新后的数据
+        } else {
+            alert('修改失败: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('请求失败:', error);
+        alert('请求失败，请稍后再试');
+    });
+
+    closeEditModal();  // 关闭弹窗
+}
+    </script>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'patient_chat_base.html' %}
+
+{% block main-body %}
+    <div class="flex h-[75vh] rounded-lg border-2 border-[#133e87]">
+        <!-- 左列：用户列表 -->
+        <div class="w-1/3 bg-gray-100 border-r-2 border-gray-300 overflow-hidden rounded-lg">
+            <div class="p-4 border-b-2 border-gray-300">
+                <h2 class="text-lg font-bold">列表</h2>
+            </div>
+            <ul id="user-list" class="overflow-y-auto h-[calc(100%-4rem)] p-4">
+                {% for relationship in doctor_patient_list %}
+                    <li class="mb-4">
+                        {% if relationship.doctor.user == request.user %}
+                            <button
+                                    id="user-item-{{ relationship.patient.user.id }}"
+                                    class="w-full flex items-center p-3 hover:bg-gray-200 rounded-md"
+                                    onclick="loadUserInfo('{{ relationship.patient.user.id }}', '{{ relationship.patient.user.username }}')">
+                                <img src="{{ relationship.patient.user.avatar.url }}"
+                                     class="w-10 h-10 rounded-full mr-3" alt="Avatar">
+                                <span class="text-md font-medium">{{ relationship.patient.user.username }}</span>
+                            </button>
+                        {% else %}
+                            <button
+                                    id="user-item-{{ relationship.doctor.user.id }}"
+                                    class="w-full flex items-center p-3 hover:bg-gray-200 rounded-md"
+                                    onclick="loadUserInfo('{{ relationship.doctor.user.id }}', '{{ relationship.doctor.user.last_name }}医生(科室：{{ relationship.doctor.specialization }})')">
+                                <img src="{{ relationship.doctor.user.avatar.url }}" class="w-10 h-10 rounded-full mr-3"
+                                     alt="Avatar">
+                                <span class="text-md font-medium">{{ relationship.doctor.user.last_name }}医生(科室：{{ relationship.doctor.specialization }})</span>
+                            </button>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- 右列：用户详细信息 -->
+        <div id="right-main-body" class="w-2/3 flex flex-col rounded-lg p-4 bg-gray-50 border-2 border-gray-300 ">
+            <h2 id="show-contact-note" class="text-lg font-bold">点击左侧用户以查看详细信息</h2>
+            <div id="user-info" class="mt-4">
+                <!-- 动态更新的用户信息 -->
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block script-block %}
+
+    <script>
+        // 动态加载用户信息
+        function loadUserInfo(userId, username) {
+            const userInfoDiv = document.getElementById('user-info');
+            userInfoDiv.innerHTML = `<p>正在加载 ${username} 的信息...</p>`; // 加载提示
+            document.getElementById('show-contact-note').style.display = 'none';
+            // 请求用户信息
+            if (userId) {
+                const url = `{% url 'pt_contact_info' 0 %}`.replace('0', userId); // 动态替换 userId
+                fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('无法加载用户信息');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        userInfoDiv.innerHTML = `<p class="text-red-500">${data.error}</p>`;
+                    } else {
+                        // 更新详细信息
+                        userInfoDiv.innerHTML = `
+                        <div class="card bg-white shadow-md rounded-lg p-4">
+                            <div class="flex items-center">
+                                <img src="${data.avatar}" alt="头像" class="w-20 h-20 rounded-full mr-4">
+                                <div>
+                                    <h2 class="text-xl font-bold">${data.last_name}${data.first_name}</h2>
+                                    <p><strong>性别:</strong> ${data.gender}</p>
+                                    <p><strong>年龄:</strong> ${data.age}</p>
+                                    <p><strong>电话:</strong> ${data.phone_number || '无'}</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 border-t pt-4">
+                                ${data.extra_info}
+                            </div>
+                        </div>`;
+                    }
+                })
+                .catch(error => {
+                    userInfoDiv.innerHTML = `<p class="text-red-500">加载失败: ${error.message}</p>`;
+                });
+            }
+                
+        }
+    </script>
+{% endblock %}

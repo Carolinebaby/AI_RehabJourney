@@ -1,0 +1,381 @@
+{% extends 'patient_base.html' %}
+
+{% block title_block %}
+    <title>健康记录 - 康途同行</title>
+{% endblock %}
+
+{% block css_block %}
+    <style>
+        #menu-health-data {
+            background-color: #133e87;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+
+{% block sidebar %}
+    <!-- 左侧内容通过子模板扩展 -->
+    <a href="{% url 'pt_health_data' %}" title="健康数据">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon w-8 h-8" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor">
+            <path opacity="0.5"
+                  d="M8.96173 19.3786L8.48914 19.961L8.96173 19.3786ZM12 5.57412L11.4522 6.08635C11.594 6.23803 11.7923 6.32412 12 6.32412C12.2077 6.32412 12.406 6.23803 12.5478 6.08635L12 5.57412ZM15.0383 19.3787L15.5109 19.961L15.0383 19.3787ZM12 21L12 20.25L12 21ZM9.43432 18.7963C7.98445 17.6197 6.29166 16.077 4.96771 14.3884C3.62931 12.6814 2.75 10.9289 2.75 9.3175H1.25C1.25 11.4354 2.38041 13.5196 3.78729 15.3139C5.20863 17.1267 6.99671 18.7499 8.48914 19.961L9.43432 18.7963ZM2.75 9.3175C2.75 6.41289 4.01766 4.61731 5.58602 4.00319C7.15092 3.39043 9.34039 3.82778 11.4522 6.08635L12.5478 5.06189C10.1598 2.50784 7.34924 1.70187 5.0391 2.60645C2.73242 3.50967 1.25 5.99209 1.25 9.3175H2.75ZM15.5109 19.961C17.0033 18.7499 18.7914 17.1268 20.2127 15.314C21.6196 13.5196 22.75 11.4354 22.75 9.31747H21.25C21.25 10.9289 20.3707 12.6814 19.0323 14.3884C17.7084 16.077 16.0156 17.6197 14.5657 18.7963L15.5109 19.961ZM22.75 9.31747C22.75 5.99208 21.2676 3.50966 18.9609 2.60645C16.6508 1.70187 13.8402 2.50784 11.4522 5.06189L12.5478 6.08635C14.6596 3.82778 16.8491 3.39042 18.414 4.00319C19.9823 4.6173 21.25 6.41287 21.25 9.31747H22.75ZM8.48914 19.961C9.76058 20.9928 10.6423 21.75 12 21.75L12 20.25C11.2771 20.25 10.8269 19.9263 9.43432 18.7963L8.48914 19.961ZM14.5657 18.7963C13.1731 19.9263 12.7229 20.25 12 20.25L12 21.75C13.3577 21.75 14.2394 20.9928 15.5109 19.961L14.5657 18.7963Z"
+                  fill="#fbfcfe"></path>
+            <path d="M18.5 9.00002H16.5M16.5 9.00002L14.5 9.00002M16.5 9.00002L16.5 7M16.5 9.00002L16.5 11"
+                  stroke="#fbfcfe" stroke-width="1.5" stroke-linecap="round"></path>
+        </svg>
+        <span>健康<br>记录</span>
+    </a>
+    <br>
+    <a href="{% url 'pt_medication_record' %}" title="药物记录">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon w-8 h-8" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor">
+            <path d="M4 3.5C4 3.03406 4 2.80109 4.07612 2.61732C4.17761 2.37229 4.37229 2.17761 4.61732 2.07612C4.80109 2 5.03406 2 5.5 2H14.5C14.9659 2 15.1989 2 15.3827 2.07612C15.6277 2.17761 15.8224 2.37229 15.9239 2.61732C16 2.80109 16 3.03406 16 3.5C16 3.96594 16 4.19891 15.9239 4.38268C15.8224 4.62771 15.6277 4.82239 15.3827 4.92388C15.1989 5 14.9659 5 14.5 5H5.5C5.03406 5 4.80109 5 4.61732 4.92388C4.37229 4.82239 4.17761 4.62771 4.07612 4.38268C4 4.19891 4 3.96594 4 3.5Z"
+                  stroke="#ffffff" stroke-width="1.5"></path>
+            <path opacity="0.5" d="M2.5 18H10.5" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"></path>
+            <path opacity="0.5" d="M2.5 10H17.5" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"></path>
+            <path d="M10.5 22H6.95693C6.38582 22 6.10026 22 5.82957 21.9628C5.02661 21.8526 4.27608 21.5011 3.67738 20.9548C3.47554 20.7706 3.29272 20.5513 2.92711 20.1125C2.32806 19.3937 2 18.4875 2 17.5518V10.9225C2 9.70736 2.55236 8.55811 3.50122 7.79902L5.90434 5.87652C6.44688 5.4425 6.71814 5.22549 7.03955 5.11274C7.36095 5 7.70834 5 8.40312 5H11.6427C12.3438 5 12.6943 5 13.0182 5.11466C13.3421 5.22933 13.6146 5.44989 14.1595 5.89102L16.5168 7.79931C17.455 8.55877 18 9.70126 18 10.9083V12.5"
+                  stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"></path>
+            <path d="M10 12V16M8 14L12 14" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"></path>
+            <path d="M14.7726 16.7726C14.7726 16.7726 15.7648 16.9833 16.8908 18.1093C18.0169 19.2353 18.2274 20.2274 18.2274 20.2274M19.2638 15.7362C20.2178 16.6902 20.2487 18.206 19.3329 19.1218L17.1218 21.3329C16.206 22.2487 14.6902 22.2178 13.7362 21.2638C12.7822 20.3098 12.7513 18.794 13.6671 17.8782L15.8782 15.6671C16.794 14.7513 18.3098 14.7822 19.2638 15.7362Z"
+                  stroke="#ffffff" stroke-width="1.5"></path>
+        </svg>
+        <span>药物<br>记录</span>
+    </a>
+
+{% endblock %}
+
+
+
+
+{% block main_body %}
+
+    <div class="scrollable-content">
+        <div class="container mx-auto p-6">
+            <!-- 最近健康记录 -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">最近健康记录</h2>
+                <!-- 新增数据按钮 -->
+                <button
+                        class="btn bg-blue-100 text-blue-900 hover:bg-[#133e87] hover:text-white"
+                        onclick="document.getElementById('add-data-modal').showModal()">
+                    新增数据
+                </button>
+            </div>
+
+            <div class="overflow-x-auto mb-8">
+                <table class="table table-zebra w-full">
+                    <thead>
+                    <tr>
+                        <th>记录时间</th>
+                        <th>体重 (kg)</th>
+                        <th>收缩压 (mmHg)</th>
+                        <th>舒张压 (mmHg)</th>
+                        <th>脉搏 (次/分)</th>
+                        <th>体温 (°C)</th>
+                        <th>血糖 (mmol/L)</th>
+                        <th>补充</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for record in health_data_records %}
+                        <tr>
+                            <td>{{ record.record_time|date:"Y-m-d H:i" }}</td>
+                            <td>{{ record.weight|default:"--" }}</td>
+                            <td>{{ record.systolic_bp|default:"--" }}</td>
+                            <td>{{ record.diastolic_bp|default:"--" }}</td>
+                            <td>{{ record.heart_rate|default:"--" }}</td>
+                            <td>{{ record.body_temperature|default:"--" }}</td>
+                            <td>{{ record.blood_sugar|default:"--" }}</td>
+                            <td>{{ record.extra_data|default:"--" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 模态框 -->
+            <dialog id="add-data-modal" class="modal">
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg mb-4">新增健康数据</h3>
+                    <form id="health-data-form" method="post" action="{% url 'pt_add_health_data' %}">
+                        {% csrf_token %}
+                        <div class="form-control mb-4">
+                            <label class="label">记录时间（可选）</label>
+                            <input type="datetime-local" name="record_time" class="input input-bordered  rounded-md"/>
+                        </div>
+                        <div class="form-control mb-4">
+                            <label class="label">体重 (kg)</label>
+                            <input type="number" step="0.01" name="weight" class="input input-bordered  rounded-md"/>
+                        </div>
+                        <div class="form-control mb-4">
+                            <label class="label">收缩压 (mmHg)</label>
+                            <input type="number" name="systolic_bp" class="input input-bordered  rounded-md"/>
+                        </div>
+                        <div class="form-control mb-4">
+                            <label class="label">舒张压 (mmHg)</label>
+                            <input type="number" name="diastolic_bp" class="input input-bordered  rounded-md"/>
+                        </div>
+                        <div class="form-control mb-4">
+                            <label class="label">脉搏 (次/分)</label>
+                            <input type="number" name="heart_rate" class="input input-bordered  rounded-md" required/>
+                        </div>
+                        <div class="form-control mb-4">
+                            <label class="label">体温 (°C)</label>
+                            <input type="number" step="0.01" name="body_temperature"
+                                   class="input input-bordered  rounded-md" required/>
+                        </div>
+                        <div class="form-control mb-4">
+                            <label class="label">血糖 (mmol/L)</label>
+                            <input type="number" step="0.01" name="blood_sugar" class="input input-bordered rounded-md"/>
+                        </div>
+                        <div class="form-control mb-4">
+                            <label class="label">补充</label>
+                            <textarea name="extra_data" class="textarea textarea-bordered rounded-md" rows="4"
+                                      placeholder="请输入补充信息..."></textarea>
+                        </div>
+                        <div class="modal-action">
+                            <button type="submit" class="btn btn-primary">提交</button>
+                            <button type="button" class="btn btn-ghost"
+                                    onclick="document.getElementById('add-data-modal').close()">取消
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </dialog>
+
+            <!-- 成功提示模态框 -->
+            <dialog id="success-modal" class="modal hidden">
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg">数据已成功提交！</h3>
+                    <div class="modal-action">
+                        <button id="close-success-modal" class="btn btn-primary">关闭</button>
+                    </div>
+                </div>
+            </dialog>
+
+            <!-- 图形化健康数据 -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4">图形化健康数据</h2>
+                <div class="flex flex-wrap items-center mb-4 space-x-4">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" class="checkbox" value="weight" onchange="toggleChart(this)">
+                        <span>体重</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" class="checkbox" value="systolic_bp" onchange="toggleChart(this)">
+                        <span>收缩压</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" class="checkbox" value="diastolic_bp" onchange="toggleChart(this)">
+                        <span>舒张压</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" class="checkbox" value="heart_rate" onchange="toggleChart(this)">
+                        <span>脉搏</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" class="checkbox" value="body_temperature" onchange="toggleChart(this)">
+                        <span>体温</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" class="checkbox" value="blood_sugar" onchange="toggleChart(this)">
+                        <span>血糖</span>
+                    </label>
+                </div>
+                <div id="chart-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- 图形化数据将动态插入到此处 -->
+                </div>
+
+            </div>
+
+            <div class="mb-8">
+                <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">AI 健康数据分析</h2>
+                    <!-- 新增数据按钮 -->
+                    <button id="ai-analyze-btn" class="btn bg-blue-100 text-blue-900 hover:bg-[#133e87] hover:text-white">
+                        AI 分析健康数据
+                    </button>
+                </div>
+                <!-- 使用 card 包裹文本展示板 -->
+                <div class="card bg-base-100 shadow-xl border rounded-lg mt-5">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-lg mb-2">分析结果</h3>
+
+                        <div id="ai-analysis-box"
+     class="p-2 bg-gray-50 rounded-lg shadow-inner border"
+     style="height: 350px; overflow-y: scroll; white-space: pre-line;">
+                            <span class="text-gray-400">点击“AI 分析健康数据”开始分析…</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script>
+            document.getElementById("health-data-form").addEventListener("submit", async function (event) {
+                event.preventDefault(); // 阻止表单默认提交行为
+
+                const form = event.target;
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest", // 声明为 AJAX 请求
+                        },
+                    });
+
+                    if (response.ok) {
+                        // 提交成功后刷新页面
+                        window.location.reload();
+                    } else {
+                        const result = await response.json();
+                        alert(result.error || "提交失败！");
+                    }
+                } catch (error) {
+                    console.error("请求出错：", error);
+                    alert("网络错误，请稍后再试！");
+                }
+            });
+
+            // 获取后端提供的图表数据
+            const chartData = {{ chart_data_json|safe }};
+
+            // 动态渲染图表函数
+            const chartContainer = document.getElementById("chart-container");
+
+            function toggleChart(checkbox) {
+                const chartId = `chart-${checkbox.value}`;
+                const existingChart = document.getElementById(chartId);
+
+                if (checkbox.checked && !existingChart) {
+                    // 如果复选框被选中并且图表尚未渲染
+                    const card = document.createElement("div");
+                    card.id = chartId;
+                    card.classList.add("card", "shadow-lg", "p-4", "border", "h-[300px]"); // 样式根据需要调整
+
+                    // 创建一个图表容器
+                    const chartWrapper = document.createElement("div");
+                    chartWrapper.classList.add("chart-wrapper");
+                    chartWrapper.style.height = '250px'; // 设置图表容器的高度
+                    chartWrapper.style.width = '100%';  // 设置图表容器的宽度
+
+                    // 将图表容器插入到卡片中
+                    card.appendChild(chartWrapper);
+
+                    // 最后将卡片添加到容器中
+                    chartContainer.appendChild(card);
+
+                    // 延迟初始化图表，确保容器已正确渲染
+                    setTimeout(() => {
+                        // 初始化图表
+                        const chart = echarts.init(chartWrapper); // 将图表绑定到 chartWrapper 容器中
+                        const options = chartData[checkbox.value]; // 获取初始配置
+
+                        // 获取图表标题
+                        const titleText = getChartTitle(checkbox.value);
+
+                        // 在图表的配置中直接添加标题
+                        options.title = {
+                            text: titleText,       // 标题文本
+                            left: 'center',        // 标题位置，居中
+                            top: '10%',            // 标题距离顶部的距离
+                            textStyle: {
+                                fontSize: 18,      // 字体大小
+                                fontWeight: 'bold', // 字体粗细
+                                color: '#333',     // 字体颜色
+                            }
+                        };
+
+                        // 更新图表的 Y 轴范围
+                        if (options.series && options.series[0].data.length > 0) {
+                            const rawData = options.series[0].data; // 获取数据数组
+                            const minData = Math.min(...rawData);
+                            const maxData = Math.max(...rawData);
+
+                            // 动态计算 y 轴范围
+                            options.yAxis = {
+                                ...options.yAxis, // 保留现有 y 轴设置
+                                min: Math.max(Math.ceil(minData / 10) * 10 - 10, 0), // 最小值
+                                max: Math.floor(maxData / 10) * 10 + 10, // 最大值
+                            };
+                        }
+
+                        // 设置 ECharts 的选项
+                        chart.setOption(options);
+
+                        // 确保图表尺寸被正确更新
+                        chart.resize();
+                    }, 100);
+                } else if (!checkbox.checked && existingChart) {
+                    // 如果复选框取消选中并且图表存在
+                    chartContainer.removeChild(existingChart);
+                }
+            }
+
+            // 获取对应的图表标题
+            function getChartTitle(chartKey) {
+                const chartTitles = {
+                    "weight": "体重",
+                    "systolic_bp": "收缩压",
+                    "diastolic_bp": "舒张压",
+                    "heart_rate": "脉搏",
+                    "body_temperature": "体温",
+                    "blood_sugar": "血糖"
+                };
+                return chartTitles[chartKey] || "未知数据";
+            }
+
+            // 默认渲染已勾选图表
+            document.addEventListener("DOMContentLoaded", () => {
+                const checkboxes = document.querySelectorAll(".checkbox");
+                checkboxes.forEach((checkbox) => {
+                    if (checkbox.checked) {
+                        toggleChart(checkbox);
+                    }
+
+                    // 绑定切换事件
+                    checkbox.addEventListener("change", () => toggleChart(checkbox));
+                });
+            });
+            
+            document.getElementById("ai-analyze-btn").addEventListener("click", async () => {
+                const box = document.getElementById("ai-analysis-box");
+                box.innerHTML = "<span class='text-blue-900'>AI 正在分析您的健康数据，请稍等...</span>";
+            
+                try {
+                    const response = await fetch("{% url 'pt_ai_analyze_health' %}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": document.getElementById("csrf-token").value,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({}),
+                    });
+            
+                    const data = await response.json();
+            
+                    if (data.status === "success") {
+                        // 使用 marked 渲染 markdown
+                        box.innerHTML = data.result;
+                    } else {
+                        box.innerHTML = `<span class='text-red-600'>分析失败：${data.message}</span>`;
+                    }
+                } catch (error) {
+                    console.error("AI 请求失败", error);
+                    box.innerHTML = "<span class='text-red-600'>网络错误，请稍后再试。</span>";
+                }
+            });
+
+        </script>
+    </div>
+{% endblock %}

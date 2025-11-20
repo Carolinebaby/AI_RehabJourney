@@ -1,0 +1,73 @@
+{% extends 'doctor_base.html' %}
+{% block title_block %}
+    <title>个人信息- 康途同行</title>
+{% endblock %}
+{% block css_block %}
+    <style>
+        #menu-personal-info {
+            background-color: #133e87;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+
+{% block main_body %}
+    <div class="scrollable-content">
+        <div class="px-6 py-4">
+            <h1 class="text-3xl font-bold mb-6">个人信息</h1>
+
+            <!-- 用户信息整体卡片 -->
+            <div class="card w-full bg-base-100 shadow-xl mb-6">
+                <div class="card-body">
+
+                    <!-- 用户基本信息 -->
+                    <div class="flex items-center">
+                        <div class="avatar">
+                            <div class="w-24 mask mask-circle">
+                                <img src="{{ user.avatar.url }}" alt="用户头像">
+                            </div>
+                        </div>
+                        <div class="ml-6">
+                            <h2 class="card-title text-2xl">{{ user.last_name }} {{ user.first_name }}</h2>
+                            <p><strong>用户名:</strong>{{ user.username }}</p>
+                            <p><strong>性别:</strong> {{ user.gender|yesno:"男,女" }}</p>
+                            <p><strong>生日:</strong> {{ user.birthday|date:"Y年m月d日" }}</p>
+                            <p><strong>电话号码:</strong> {{ user.phone_number }}</p>
+                            <p><strong>类型:</strong> {{ user.get_user_type_display }}</p>
+                        </div>
+                    </div>
+
+                    <!-- 分隔线 -->
+                    <hr class="my-6 border-t border-gray-300">
+
+                    <!-- 医生或患者信息 -->
+                    {% if user.user_type == "doctor" %}
+                        <div>
+                            <h2 class="text-2xl font-bold mb-2">医生信息</h2>
+                            <p><strong>医院:</strong> {{ user.doctor_profile.hospital }}</p>
+                            <p><strong>专长:</strong> {{ user.doctor_profile.specialization }}</p>
+                            <p><strong>执照编号:</strong> {{ user.doctor_profile.license_number }}</p>
+                            <p><strong>职称:</strong> {{ user.doctor_profile.get_position_display }}</p>
+                        </div>
+                    {% elif user.user_type == "patient" %}
+                        <div>
+                            <h2 class="text-2xl font-bold mb-2">患者信息</h2>
+                            <p><strong>身高:</strong> {{ user.patient_profile.height }} 米</p>
+                            <p><strong>家族病史:</strong> {{ user.patient_profile.family_history|default:"无" }}</p>
+                            <p><strong>当前诊断:</strong> {{ user.patient_profile.current_diagnosis|default:"无" }}</p>
+                            <p><strong>病史:</strong> {{ user.patient_profile.medical_history|default:"无" }}</p>
+                            <p><strong>正在服用的药物:</strong> {{ user.patient_profile.medications|default:"无" }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 修改信息按钮 -->
+            <div class="text-right">
+                <a href="{% url 'dr_modify_info' %}" class="btn bg-blue-800 text-white hover:bg-blue-600">修改个人信息</a>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

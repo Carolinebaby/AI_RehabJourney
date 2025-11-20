@@ -1,0 +1,22 @@
+{% extends 'core_base.html' %}
+{% block content %}
+    <div
+            class="hero min-h-screen rounded-lg overflow-hidden"
+            style="background-image: url('/static/image/healthy-care-page.jpg');">
+        <div class="hero-overlay bg-opacity-60"></div>
+        <div class="hero-content text-neutral-content text-center">
+            <div class="max-w-md">
+                <h1 class="mb-5 text-5xl font-bold">康途同行</h1>
+                <h3 class="mb-2 text-2xl">无论您在哪</h3>
+                <h2 class="mb-2 text-4xl">远程康复触手可及</h2>
+                <h3 class="mb-2 text-2xl">TELEREHABILITATION</h3>
+                <p class="mb-5">
+                    我们的平台致力于为医生和患者提供高效、便捷的沟通渠道，专注于诊断后病人的康复监督与慢性病管理。通过降低住院开销、支持居家治疗，帮助患者以更低成本实现康复目标，同时为医生提供精准的患者管理工具。
+                </p>
+                <form action="login/">
+                    <button type="submit" class="btn btn-primary">登录</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    {% block head %}
+        <title>康途同行-远程康复平台</title>
+    {% endblock %}
+    <link href="/static/css/tailwind.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/static/css/theme.css">
+</head>
+<body>
+<div class="m-2 bg-gray-200 text-neutral-500 dark:bg-[#0a0c19] dark:text-gray-400 md:max-w-[1200px] lg:mx-auto lg:my-16">
+    <div class="navbar bg-gray-50">
+        <div class="navbar-start">
+            <div class="dropdown">
+                <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 6h16M4 12h8m-8 6h16"/>
+                    </svg>
+                </div>
+                <ul
+                        tabindex="0"
+                        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                    <li><a href="{% url 'index' %}">首页</a></li>
+                    <li><a href="{% url 'about' %}">关于</a></li>
+                </ul>
+            </div>
+            <a class="text-xl font-bold" href="{% url 'index' %}">康途同行 RehabJourney</a>
+        </div>
+        <div class="navbar-center hidden lg:flex">
+            <ul class="menu menu-horizontal px-1">
+                <li><a href="{% url 'index' %}">首页</a></li>
+                <li><a href="{% url 'about' %}">关于</a></li>
+            </ul>
+        </div>
+        <div class="navbar-end">
+            <a class="btn" href="{% url 'login' %}">登录</a>
+        </div>
+    </div>
+    {% block content %}
+    {% endblock %}
+</div>
+</body>
+<footer class="bg-gray-200 text-black py-6 mt-10">
+    <div class="container mx-auto text-center">
+        <p>&copy; 2024 康途同行 | All rights reserved.</p>
+        <p>Website Made By Yingfei Wu</p>
+    </div>
+</footer>
+</html>

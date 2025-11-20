@@ -1,0 +1,42 @@
+{% extends 'core_base.html' %}
+{% block head %}
+    <title>关于康途同行</title>
+{% endblock %}
+{% block content %}
+    <div class="flex justify-center mt-10">
+        <div class="card w-[90%] bg-base-100 shadow-xl  mb-10">
+            <div class="card-body text-center">
+                <h2 class="text-5xl font-bold mb-6 text-black">关于康途同行</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- 左侧图片 -->
+                    <div>
+                        <img src="/static/image/Online-Doctor1.png" alt="在线医生" class="rounded-lg shadow-lg w-full">
+                        <p class="text-sm text-gray-500 mt-2">image from storyset</p>
+                    </div>
+                    <!-- 右侧文字 -->
+                    <div class="flex items-center">
+                        <div>
+                            <p class="text-4xl font-semibold text-grey-900">
+                                远程康复，康途同行
+                            </p>
+                            <br>
+                            <p class="text-xl">
+                                我们的目标：让人们以更低的成本进行康复疗愈，让更多人感受科技发展之利。
+                            </p>
+                            <br>
+                            <ul>
+                                <li>医患交流</li>
+                                <li>健康计划指定</li>
+                                <li>健康打卡</li>
+                                <li>健康数据跟踪</li>
+                                <li>药物摄入记录</li>
+                                <li>...</li>
+                                <li>All For You</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

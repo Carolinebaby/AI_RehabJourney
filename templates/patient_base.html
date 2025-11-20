@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    {% block title_block %}
+        <title>康途同行 - RehabJourney</title>
+    {% endblock %}
+    <link href="/static/css/tailwind.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/static/css/theme.css">
+    {% block css_block %}
+
+    {% endblock %}
+</head>
+
+<body>
+<!-- 页面主体 -->
+<div class="layout-container">
+    <!-- 左侧边栏 -->
+    <div class="side-bar">
+        <br>
+        <!-- 左侧内容通过子模板扩展 -->
+        <a href="{% url 'pt_index' %}" title="首页">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon w-8 h-8" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path d="M2 12.2039C2 9.91549 2 8.77128 2.5192 7.82274C3.0384 6.87421 3.98695 6.28551 5.88403 5.10813L7.88403 3.86687C9.88939 2.62229 10.8921 2 12 2C13.1079 2 14.1106 2.62229 16.116 3.86687L18.116 5.10812C20.0131 6.28551 20.9616 6.87421 21.4808 7.82274C22 8.77128 22 9.91549 22 12.2039V13.725C22 17.6258 22 19.5763 20.8284 20.7881C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.7881C2 19.5763 2 17.6258 2 13.725V12.2039Z"
+                      stroke="#ffffff" stroke-width="1.5"></path>
+                <path d="M15 18H9" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"></path>
+            </svg>
+            <span>首页</span>
+        </a>
+        <br>
+        {% block sidebar %}
+
+        {% endblock %}
+
+
+        <div style="margin-top:auto; margin-bottom: 20px">
+            <a href="{% url 'logout' %}" title="退出">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon w-8 h-8" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path d="M14.9453 1.25C13.5778 1.24998 12.4754 1.24996 11.6085 1.36652C10.7084 1.48754 9.95048 1.74643 9.34857 2.34835C8.82363 2.87328 8.55839 3.51836 8.41916 4.27635C8.28387 5.01291 8.25799 5.9143 8.25196 6.99583C8.24966 7.41003 8.58357 7.74768 8.99778 7.74999C9.41199 7.7523 9.74964 7.41838 9.75194 7.00418C9.75803 5.91068 9.78643 5.1356 9.89448 4.54735C9.99859 3.98054 10.1658 3.65246 10.4092 3.40901C10.686 3.13225 11.0746 2.9518 11.8083 2.85315C12.5637 2.75159 13.5648 2.75 15.0002 2.75H16.0002C17.4356 2.75 18.4367 2.75159 19.1921 2.85315C19.9259 2.9518 20.3144 3.13225 20.5912 3.40901C20.868 3.68577 21.0484 4.07435 21.1471 4.80812C21.2486 5.56347 21.2502 6.56459 21.2502 8V16C21.2502 17.4354 21.2486 18.4365 21.1471 19.1919C21.0484 19.9257 20.868 20.3142 20.5912 20.591C20.3144 20.8678 19.9259 21.0482 19.1921 21.1469C18.4367 21.2484 17.4356 21.25 16.0002 21.25H15.0002C13.5648 21.25 12.5637 21.2484 11.8083 21.1469C11.0746 21.0482 10.686 20.8678 10.4092 20.591C10.1658 20.3475 9.99859 20.0195 9.89448 19.4527C9.78643 18.8644 9.75803 18.0893 9.75194 16.9958C9.74964 16.5816 9.41199 16.2477 8.99778 16.25C8.58357 16.2523 8.24966 16.59 8.25196 17.0042C8.25799 18.0857 8.28387 18.9871 8.41916 19.7236C8.55839 20.4816 8.82363 21.1267 9.34857 21.6517C9.95048 22.2536 10.7084 22.5125 11.6085 22.6335C12.4754 22.75 13.5778 22.75 14.9453 22.75H16.0551C17.4227 22.75 18.525 22.75 19.392 22.6335C20.2921 22.5125 21.0499 22.2536 21.6519 21.6517C22.2538 21.0497 22.5127 20.2919 22.6337 19.3918C22.7503 18.5248 22.7502 17.4225 22.7502 16.0549V7.94513C22.7502 6.57754 22.7503 5.47522 22.6337 4.60825C22.5127 3.70814 22.2538 2.95027 21.6519 2.34835C21.0499 1.74643 20.2921 1.48754 19.392 1.36652C18.525 1.24996 17.4227 1.24998 16.0551 1.25H14.9453Z"
+                          fill="#fafbff"></path>
+                    <path d="M15 11.25C15.4142 11.25 15.75 11.5858 15.75 12C15.75 12.4142 15.4142 12.75 15 12.75H4.02744L5.98809 14.4306C6.30259 14.7001 6.33901 15.1736 6.06944 15.4881C5.79988 15.8026 5.3264 15.839 5.01191 15.5694L1.51191 12.5694C1.34567 12.427 1.25 12.2189 1.25 12C1.25 11.7811 1.34567 11.573 1.51191 11.4306L5.01191 8.43056C5.3264 8.16099 5.79988 8.19741 6.06944 8.51191C6.33901 8.8264 6.30259 9.29988 5.98809 9.56944L4.02744 11.25H15Z"
+                          fill="#fafbff"></path>
+                </svg>
+                <span>退出</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="main-content">
+        <!-- 导航栏 -->
+        <div id="header-menu"
+             class="bg-[#ffffffe6] dark:bg-[rgba(22,24,41,0.9)] sticky top-0 border-b border-stone-100 lg:py-5 z-[999] backdrop-blur-md">
+            <div id="header-menu-wrap" class="flex justify-between items-center hidden lg:flex z-50">
+                <!-- 导航菜单 -->
+                <ul class="nav flex items-center gap-x-3">
+                    <li>
+                        <a href="{% url 'pt_health_plan' %}"
+                           title="健康计划打卡"
+                           class="text-black dark:text-white rounded-full px-4 py-2 hover:bg-[#133e87] hover:text-white hover:shadow-lg"
+                           id="menu-health-plan">健康计划打卡</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'pt_health_data' %}"
+                           title="健康数据记录"
+                           class="text-black dark:text-white rounded-full px-4 py-2 hover:bg-[#133e87] hover:text-white hover:shadow-lg"
+                           id="menu-health-data">健康数据记录</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'pt_chat' %}"
+                           title="医患交流"
+                           class="text-black dark:text-white rounded-full px-4 py-2 hover:bg-[#133e87] hover:text-white hover:shadow-lg"
+                           id="menu-chat">医患交流</a>
+                    </li>
+                    <li>
+                        <a title="个人信息" href="{% url 'pt_personal_info' %}"
+                           class="text-black dark:text-white rounded-full px-4 py-2 hover:bg-[#133e87] hover:text-white hover:shadow-lg"
+                           id="menu-personal-info">个人信息</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    
+        {% block main_body %}
+        {% endblock %}
+    </div>
+</div>
+</body>
+<footer class="bg-gray-200 text-black py-6 mt-10">
+    <div class="container mx-auto text-center">
+        <p>&copy; 2024 康途同行 | All rights reserved.</p>
+        <p>Website Made By Yingfei Wu</p>
+    </div>
+</footer>
+</html>

@@ -1,0 +1,78 @@
+{% extends 'doctor_base.html' %}
+
+{% block title_block %}
+    <title>医生 - 康途同行</title>
+{% endblock %}
+
+{% block main_body %}
+    <div class="scrollable-content overflow-auto">
+        <div class="main-block" style="height: 90%; overflow-y: hidden;">
+            <div class="text-center"><br>
+                <h2 class="card-title text-[--dark-color] text-2xl font-bold ml-8">欢迎来到康途同行 👏</h2>
+                <p class="text-gray-500 text-lg">
+                    我们致力于为您提供专业的患者管理沟通平台。
+                </p>
+            </div>
+
+            <!-- 小卡片区域 -->
+           <div class="card-body grid grid-cols-2 md:grid-cols-4 gap-6">
+
+                <!-- 患者管理 -->
+                <div class="card glass">
+                    <figure>
+                        <img src="/static/image/manage.png" style="height: 100px; width: 100px" class="mt-12"  alt="健康数据记录"/>
+                    </figure>
+                    <div class="card-body">
+                        <h2 class="card-title">患者管理</h2>
+                        <p>查看患者信息，增加删除所管理的患者。</p>
+                        <div class="card-actions justify-end">
+                            <a href="{% url 'dr_patient_manage' %}" class="btn btn-primary">管理患者</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 健康计划打卡 -->
+                <div class="card glass">
+                    <figure>
+                        <img src="/static/image/list.png" style="height: 100px; width: 100px" class="mt-12"  alt="健康计划打卡"/>
+                    </figure>
+                    <div class="card-body">
+                        <h2 class="card-title">患者健康计划</h2>
+                        <p>查看、修改患者的健康计划。</p>
+                        <div class="card-actions justify-end">
+                            <a href="{% url 'dr_patient_health_plan' %}" class="btn btn-primary">查看计划</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 医患交流 -->
+                <div class="card glass">
+                    <figure>
+                        <img src="/static/image/chat.png" style="height: 100px; width: 100px" class="mt-12"  alt="医患交流"/>
+                    </figure>
+                    <div class="card-body">
+                        <h2 class="card-title">医患交流</h2>
+                        <p>与您的患者实时沟通，确保康复进程。</p>
+                        <div class="card-actions justify-end">
+                            <a href="{% url 'dr_chat' %}" class="btn btn-primary">开始聊天</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 个人信息 -->
+                <div class="card glass">
+                    <figure>
+                        <img src="/static/image/profile.png" style="height: 100px; width: 100px" class="mt-12"  alt="个人信息"/>
+                    </figure>
+                    <div class="card-body">
+                        <h2 class="card-title">个人信息</h2>
+                        <p>查看您的个人信息，随时更新您的资料。</p>
+                        <div class="card-actions justify-end">
+                            <a href="{% url 'dr_personal_info' %}" class="btn btn-primary">查看信息</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

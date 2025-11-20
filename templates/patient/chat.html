@@ -1,0 +1,310 @@
+{% extends 'patient_chat_base.html' %}
+{% block title_block %}
+    <title>医患交流 - 康途同行</title>
+{% endblock %}
+{% block main-body %}
+    <div class="scrollable-content">
+        <div class="flex h-[75vh] rounded-lg border-2 border-[#133e87]">
+            <!-- 左列：聊天列表 -->
+            <div class="w-1/3 bg-gray-100 border-r-2 border-gray-300 overflow-hidden rounded-lg">
+                <div class="p-4 border-b-2 border-gray-300">
+                    <h2 class="text-lg font-bold">列表</h2>
+                </div>
+                <ul id="chat-list" class="overflow-y-auto h-[calc(100%-4rem)] p-4">
+                    {% for relationship in doctor_patient_list %}
+                        <li class="mb-4">
+                            {% if relationship.doctor.user == request.user %}
+                                <button
+                                        id="chat-item-{{ relationship.patient.user.id }}"
+                                        class="w-full flex items-center p-3 hover:bg-gray-200 rounded-md {% if relationship.patient.user.id == current_user_id %}bg-blue-100{% endif %}"
+                                        onclick="loadMessages('{{ relationship.patient.user.id }}', '{{ relationship.patient.user.username }}', this)">
+                                    <img src="{{ relationship.patient.user.avatar.url }}"
+                                         class="w-10 h-10 rounded-full mr-3" alt="Avatar">
+                                    <span class="text-md font-medium">{{ relationship.patient.user.username }}</span>
+                                </button>
+                            {% else %}
+                                <button
+                                        id="chat-item-{{ relationship.doctor.user.id }}"
+                                        class="w-full flex items-center p-3 hover:bg-gray-200 rounded-md {% if relationship.doctor.user.id == current_user_id %}bg-blue-100{% endif %}"
+                                        onclick="loadMessages('{{ relationship.doctor.user.id }}', '{{ relationship.doctor.user.last_name }}医生(科室：{{ relationship.doctor.specialization }})', this)">
+                                    <img src="{{ relationship.doctor.user.avatar.url }}"
+                                         class="w-10 h-10 rounded-full mr-3"
+                                         alt="Avatar">
+                                    <span class="text-md font-medium">{{ relationship.doctor.user.last_name }}医生(科室：{{ relationship.doctor.specialization }})</span>
+                                </button>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- 右列 -->
+            <div id="right-main-body" class="w-2/3 flex flex-col rounded-lg">
+                <div id="chat-header" class="p-4 border-b-2 border-gray-300 bg-white" style="display:none;">
+                    <h2 id="chat-username" class="text-lg font-bold">请选择一个聊天</h2>
+                </div>
+
+                <!-- 聊天显示区域 -->
+                <div id="chat-content" class="flex-1 p-4 bg-gray-50 overflow-y-auto rounded-lg">
+                    <div class="flex items-center justify-center h-full">
+                        <p class="text-lg font-bold text-gray-500">欢迎来到医患交流平台</p>
+                    </div>
+                </div>
+
+                <!-- 输入框 -->
+                <div id="chat-input" class="p-4 bg-white border-t-2 border-gray-300 rounded-lg" style="display:none;">
+                    <form id="send-message-form" onsubmit="sendMessage(event)" class="flex items-center space-x-3">
+                        <!-- 上传文件按钮 -->
+                        <div class="dropdown dropdown-top">
+                            <label tabindex="0" class="cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon w-8 h-8" fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke="#133e87">
+                                    <circle cx="12" cy="12" r="10" stroke="#133e87" stroke-width="1.5"></circle>
+                                    <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15"
+                                          stroke-linecap="round"></path>
+                                </svg>
+                            </label>
+                            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                                <li>
+                                    <label for="file-upload" class="cursor-pointer">
+                                        上传文件
+                                        <input id="file-upload" type="file" class="hidden" onchange="uploadFile(event)">
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- 输入消息 -->
+                        <input
+                                id="message-input"
+                                type="text"
+                                class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-800"
+                                placeholder="输入消息内容" autocomplete="off">
+                        <!-- 发送按钮 -->
+                        <button
+                                type="submit"
+                                class="px-4 py-2 bg-blue-800 text-white font-bold rounded-md hover:bg-blue-600">
+                            发送
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block script-block %}
+    <script>
+        let currentReceiverId = null;
+        let patient_id = {{ request.user.id }};
+        let ws = null;
+
+        // 加载聊天记录
+        function loadMessages(userId, username, selectedItem) {
+            if (currentReceiverId !== userId) {
+                // 关闭旧的连接
+                if (ws) {
+                    ws.close();
+                }
+
+                // 更新当前接收者ID
+                currentReceiverId = userId;
+
+                // 为新的接收者创建WebSocket连接
+                ws = new WebSocket(`ws://127.0.0.1:8001/ws/chat/${currentReceiverId}/${patient_id}/`);
+
+                ws.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+                    const message = data.message;
+                    const is_text = data.is_text;
+                    const msg_send_time = data.send_time ? data.send_time : new Date().toISOString();
+                    const sender_id = data.sender_id;
+                    const isSender = sender_id === patient_id;
+                    const file_url = data.file_url;
+                    // 转换时间为中国标准时间 (CST)
+                    const chinaTime = new Date(msg_send_time);
+                    const options = {
+                        timeZone: 'Asia/Shanghai',  // 强制转换为中国时区
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                    };
+
+                    const formattedTime = new Intl.DateTimeFormat('zh-CN', options).format(chinaTime).replace(/\//g, '-');  // 转换为中国时间并格式化
+                    // 在聊天框中显示接收到的消息
+                    const chatContent = document.getElementById('chat-content');
+                    if (is_text) {
+                        chatContent.innerHTML += `
+                        <div class="mb-4 chat ${isSender ? 'chat-end' : 'chat-start'}">
+                            <div class="chat-header">
+                                <time class="text-xs opacity-50">${formattedTime}</time>
+                            </div>
+                            <div class="chat-bubble ${isSender ? 'bg-sky-800' : 'bg-slate-200 text-black'}">
+                                ${message}
+                            </div>
+                        </div>`;
+                    } else {
+                        chatContent.innerHTML += `
+                    <div class="mb-4 chat ${isSender ? 'chat-end' : 'chat-start'}">
+                        <div class="chat-header">
+                            <time class="text-xs opacity-50">${formattedTime}</time>
+                        </div>
+                        <div class="chat-bubble ${isSender ? 'bg-violet-200' : 'bg-slate-200'} text-black p-4 rounded-lg">
+                            <div class="flex flex-col items-center">
+                                <span class="font-bold">${message}</span>
+                                <a href="${file_url}" download class="mt-2 text-blue-800 underline">下载文件</a>
+                            </div>
+                        </div>
+                    </div>`;
+                    }
+
+
+                    document.getElementById('chat-content').scrollTop = document.getElementById('chat-content').scrollHeight;
+                };
+            }
+
+
+            document.getElementById('chat-username').innerText = username;
+
+            const allItems = document.querySelectorAll('#chat-list button');
+            allItems.forEach(item => item.classList.remove('bg-blue-100'));
+            selectedItem.classList.add('bg-blue-100');
+
+            document.getElementById('chat-header').style.display = 'block';
+            document.getElementById('chat-input').style.display = 'block';
+
+            const url = "{% url 'pt_get_messages' 0 %}".replace(0, userId);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const chatContent = document.getElementById('chat-content');
+                    chatContent.innerHTML = '';
+
+                    data.messages.forEach(msg => {
+                        const isSender = msg.sender__id === {{ request.user.id }};
+                        let messageBubble = '';
+
+                        if (msg.message_type === "text") {
+                            messageBubble = `
+                    <div class="mb-4 chat ${isSender ? 'chat-end' : 'chat-start'}">
+                        <div class="chat-header">
+                            <time class="text-xs opacity-50">${msg.send_time}</time>
+                        </div>
+                        <div class="chat-bubble ${isSender ? 'bg-sky-800' : 'bg-slate-200 text-black'}">
+                            ${msg.text_content}
+                        </div>
+                    </div>`;
+                        } else if (msg.message_type === "file") {
+                            messageBubble = `
+                    <div class="mb-4 chat ${isSender ? 'chat-end' : 'chat-start'}">
+                        <div class="chat-header">
+                            <time class="text-xs opacity-50">${msg.send_time}</time>
+                        </div>
+                        <div class="chat-bubble ${isSender ? 'bg-violet-200' : 'bg-slate-200'} text-black p-4 rounded-lg">
+                            <div class="flex flex-col items-center">
+                                <span class="font-bold">${msg.file_name}</span>
+                                <a href="${msg.file_url}" download class="mt-2 text-blue-800 underline">下载文件</a>
+                            </div>
+                        </div>
+                    </div>`;
+                        }
+
+                        chatContent.innerHTML += messageBubble;
+                    });
+
+                    chatContent.scrollTop = chatContent.scrollHeight;
+                })
+                .catch(error => alert('消息加载失败:' + error));
+        }
+
+        // 发送文本消息
+        function sendMessage(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('message-input');
+            if (!messageInput.value.trim()) return;
+
+            const send_time = new Date().toLocaleString("zh-CN", {timeZone: "Asia/Shanghai"}).replace(/\//g, '-');  // 格式化为 Y-M-D hh:mm:ss
+            // 检查传递的数据是否正确
+            const messageData = {
+                message: messageInput.value,
+                send_time: send_time,
+                sender_id: patient_id,
+                is_text: true,
+                file_url: null
+            };
+
+            ws.send(JSON.stringify(messageData));  // 发送数据
+
+            fetch(`{% url 'pt_send_message' %}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    receiver_id: currentReceiverId,
+                    text_content: messageInput.value
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadMessages(currentReceiverId, document.getElementById('chat-username').innerText, document.querySelector(`#chat-item-${currentReceiverId}`));
+                        messageInput.value = '';
+                    } else {
+                        alert('发送消息失败:' + data.error);
+                    }
+                })
+                .catch(error => alert('错误:' + error));
+        }
+
+        // 上传文件
+        function uploadFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('receiver_id', currentReceiverId);
+                formData.append('file', file);
+
+
+                fetch(`{% url 'pt_send_file' %}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 文件上传成功后，通过 WebSocket 发送文件信息
+                            const file_name = file.name;
+                            const send_time = new Date().toLocaleString("zh-CN", {timeZone: "Asia/Shanghai"}).replace(/\//g, '-');  // 格式化为 Y-M-D hh:mm:ss
+                            const file_url = data.file_url;
+
+                            // 通过 WebSocket 发送文件信息
+                            ws.send(JSON.stringify({
+                                message: file_name,
+                                send_time: send_time,
+                                sender_id: patient_id,
+                                file_url: file_url,
+                                is_text: false
+                            }));
+
+                            // 重新加载消息
+                            loadMessages(currentReceiverId, document.getElementById('chat-username').innerText, document.querySelector(`#chat-item-${currentReceiverId}`));
+                        } else {
+                            alert('发送文件失败:' + data.error);
+                        }
+                    })
+                    .catch(error => alert('文件上传失败:' + error));
+            }
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录 - 康途同行</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+    <link rel="stylesheet" href="/static/css/theme.css">
+</head>
+<body class="bg-base-200 flex items-center justify-center min-h-screen">
+
+    <div class="card w-96 bg-base-100 shadow-2xl rounded-lg">
+        <div class="card-body">
+            <h2 class="card-title text-center text-[--dark-color]">用户登录</h2>
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <!-- 用户名输入框 -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">用户名</span>
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="请输入您的用户名"
+                        class="input input-bordered rounded-md w-full"
+                        name="username"
+                        required
+                    />
+                </div>
+                <!-- 密码输入框 -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">密码</span>
+                    </label>
+                    <input
+                        type="password"
+                        placeholder="请输入您的密码"
+                        class="input input-bordered rounded-md w-full"
+                        name="password"
+                        required
+                    />
+                    <!-- 错误提示 -->
+                    {% if error_message %}
+                        <p class="text-red-500 text-sm mt-2">{{ error_message }}</p>
+                    {% endif %}
+                </div>
+                <!-- 登录按钮 -->
+                <div class="form-control mt-6">
+                    <button type="submit" class="btn bg-[--dark-color] border-none hover:bg-[--darker-color] w-full rounded-md text-white">登录</button>
+                </div>
+            </form>
+            <!-- 额外选项 -->
+            <div class="flex justify-center mt-4">
+                <p class="text-sm">没有账户？
+                    <a href="{% url 'signup' %}" class="link link-hover text-[--dark-color] font-bold">注册</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

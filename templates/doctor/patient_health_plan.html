@@ -1,0 +1,406 @@
+{% extends 'doctor_base.html' %}
+{% block title_block %}
+    <title>患者健康计划- 康途同行</title>
+{% endblock %}
+{% block css_block %}
+    <style>
+        #menu-patient-health-plan {
+            background-color: #133e87;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+
+{% block main_body %}
+
+    <div class="scrollable-content">
+        <div class="container mx-auto p-6">
+            <!-- 遍历每个病人的健康计划 -->
+            {% for patient_info in patient_health_plans %}
+                <div class="card card-compact shadow-lg mb-8 w-full sm:w-[90%] mx-auto">
+                    <div class="card-body">
+                        <h2 class="text-2xl font-bold mb-4">{{ patient_info.patient.last_name }} {{ patient_info.patient.first_name }}</h2>
+                        <p><strong>当前诊断:</strong> {{ patient_info.patient.current_diagnosis|default:"--" }}</p>
+                        <p>
+                            <strong>治疗目标:</strong> {{ patient_info.patient.patient_profile.therapeutic_goal|default:"--" }}
+                        </p>
+                        <hr class="my-4 border-t border-gray-300">
+
+                        <!-- 健康计划表格 -->
+                        <h3 class="text-xl font-semibold mb-4">健康计划</h3>
+
+                        <div class="overflow-x-auto">
+                            <table class="table table-zebra w-full">
+                                <thead>
+                                <tr>
+                                    <th>事件</th>
+                                    <th>描述</th>
+                                    <th>状态</th>
+                                    <th>创建者</th>
+                                    <th>开始时间</th>
+                                    <th>结束时间</th>
+                                    <th>频率</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for plan in patient_info.health_plans %}
+                                    <tr>
+                                        <td>{{ plan.title }}</td>
+                                        <td>{{ plan.description|default:"--" }}</td>
+
+                                        <!-- 状态列 -->
+                                        <td>
+                                            {% if plan.status == 'uncompleted' %}
+                                                <span class="badge badge-warning">进行中</span>
+                                            {% elif plan.status == 'expired' %}
+                                                <span class="badge badge-error">结束</span>
+                                            {% else %}
+                                                <span class="badge badge-neutral">未开始</span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td><span class="badge bg-sky-100">
+                                            {% if plan.created_by == "自己" %}
+                                                患者
+                                            {% else %}
+                                                {{ plan.created_by }}
+                                            {% endif %}
+                                        </span>
+                                        </td>
+
+                                        <td>{{ plan.start_time|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ plan.due_time|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ plan.frequency|default:"--" }}天一次</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">没有健康计划</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 添加计划按钮 -->
+                        <div class="flex justify-end mt-4">
+                            <!-- 新增健康计划按钮 -->
+                            <button
+                                    class="btn bg-blue-100 text-blue-900 hover:bg-[#133e87] hover:text-white rounded-md mr-4 px-6 py-3"
+                                    onclick="openAddPlanModal('{{ patient_info.patient.id }}')"
+                            >
+                                新增健康计划
+                            </button>
+
+                            <!-- 删除健康计划按钮 -->
+                            <button
+                                    class="btn bg-red-100 text-red-900 hover:bg-[#f44336] hover:text-white rounded-md mr-4 px-6 py-3"
+                                    onclick="openDeletePlanModal('{{ patient_info.patient.id }}')"
+                            >
+                                删除健康计划
+                            </button>
+
+                            <!-- 修改健康计划按钮 -->
+                            <button
+                                    class="btn bg-yellow-100 text-yellow-900 hover:bg-[#FF9800] hover:text-white rounded-md mr-4 px-6 py-3"
+                                    onclick="openEditPlanModal('{{ patient_info.patient.id }}')"
+                            >
+                                修改健康计划
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        
+            {% for patient_info in patient_health_plans %}
+                <dialog id="addPlanModal{{ patient_info.patient.id }}" class="modal">
+                    <div class="modal-box">
+                        <h2 class="text-xl font-semibold mb-4">添加健康计划</h2>
+                        <form method="POST" action="{% url 'dr_add_patient_health_plan' patient_info.patient.id %}">
+                            {% csrf_token %}
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">计划标题</span>
+                                </label>
+                                <input type="text" name="title" class="input input-bordered rounded-md w-full" required>
+                            </div>
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">描述</span>
+                                </label>
+                                <textarea name="description"
+                                          class="textarea textarea-bordered rounded-md w-full"></textarea>
+                            </div>
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">开始时间</span>
+                                </label>
+                                <input type="datetime-local" name="start_time" class="input input-bordered w-full"
+                                       required>
+                            </div>
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">结束时间</span>
+                                </label>
+                                <input type="datetime-local" name="due_time" class="input input-bordered w-full"
+                                       required>
+                            </div>
+                            <!-- 频率 -->
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">频率(多少天执行一次)</span>
+                                </label>
+                                <input type="number" name="frequency" class="input input-bordered rounded-md" min="1"/>
+                            </div>
+                            <div class="modal-action">
+                                <button type="submit" class="btn btn-primary">保存</button>
+                                <button type="button" class="btn btn-ghost"
+                                        onclick="closeAddPlanModal('{{ patient_info.patient.id }}')">关闭
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </dialog>
+
+                <!-- 删除健康计划的弹窗 -->
+                <dialog id="deletePlanModal{{ patient_info.patient.id }}" class="modal">
+                    <div class="modal-box">
+                        <h3 class="font-bold text-lg mb-4">删除健康计划</h3>
+                        <form method="POST" action="{% url 'pt_delete_health_plans' %}"
+                              onsubmit="deleteHealthPlans(event)">
+                            {% csrf_token %}
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">请选择要删除的健康计划</span>
+                                </label>
+                                <div class="space-y-2">
+                                    {% for plan in patient_info.health_plans %}
+                                        {% if plan.created_by == "我" %}
+                                            <label>
+                                                <input type="checkbox" name="plan_checkbox"
+                                                       value="{{ plan.id }}"/> {{ plan.title }}
+                                            </label>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="modal-action">
+                                <button type="submit" class="btn btn-danger">删除</button>
+                                <button type="button" class="btn btn-ghost"
+                                        onclick="closeDeletePlanModal('{{ patient_info.patient.id }}')">取消
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </dialog>
+
+
+
+                <!-- 修改健康计划的弹窗 -->
+                <dialog id="editPlanModal{{ patient_info.patient.id }}" class="modal">
+                    <div class="modal-box">
+                        <h3 class="font-bold text-lg mb-4">修改健康计划</h3>
+                        <form id="editPlanForm{{ patient_info.patient.id }}" method="POST"
+                              action="{% url 'dr_edit_health_plan' %}">
+                            {% csrf_token %}
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">选择计划</span>
+                                </label>
+                                <select name="plan_id" class="input input-bordered rounded-md"
+                                        onchange="fillPlanDetails(this)">
+                                    <option value="">--请选择健康计划--</option>
+                                    {% for plan in patient_info.health_plans %}
+                                        {% if plan.created_by == "我" %}
+                                            <option value="{{ plan.id }}"
+                                                    data-title="{{ plan.title }}"
+                                                    data-description="{{ plan.description }}"
+                                                    data-start-time="{{ plan.start_time|date:'Y-m-d\TH:i' }}"
+                                                    data-due-time="{{ plan.due_time|date:'Y-m-d\TH:i' }}"
+                                                    data-frequency="{{ plan.frequency }}">
+                                                {{ plan.title }}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">标题</span>
+                                </label>
+                                <input type="text" name="edit_title" class="input input-bordered rounded-md"/>
+                            </div>
+
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">描述</span>
+                                </label>
+                                <textarea name="edit_description"
+                                          class="textarea textarea-bordered rounded-md"></textarea>
+                            </div>
+
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">开始时间</span>
+                                </label>
+                                <input type="datetime-local" name="edit_start_time"
+                                       class="input input-bordered rounded-md"/>
+                            </div>
+
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">结束时间</span>
+                                </label>
+                                <input type="datetime-local" name="edit_due_time"
+                                       class="input input-bordered rounded-md"/>
+                            </div>
+
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text">频率(多少天执行一次)</span>
+                                </label>
+                                <input type="number" name="edit_frequency" class="input input-bordered rounded-md"/>
+                            </div>
+
+                            <div class="modal-action">
+                                <button type="button" class="btn btn-primary"
+                                        onclick="submitHealthPlan('{{ patient_info.patient.id }}')">确认修改
+                                </button>
+                                <button type="button" class="btn btn-ghost"
+                                        onclick="closeEditPlanModal('{{ patient_info.patient.id }}')">取消
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </dialog>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function openAddPlanModal(patientId) {
+            const modal = document.getElementById('addPlanModal' + patientId);
+            modal.showModal();  // 使用 showModal() 方法打开弹窗
+        }
+
+        function openDeletePlanModal(patientId) {
+            const modal = document.getElementById('deletePlanModal' + patientId);
+            modal.showModal();  // 使用 showModal() 方法打开弹窗
+        }
+
+        function openEditPlanModal(patientId) {
+            const modal = document.getElementById('editPlanModal' + patientId);
+            modal.showModal();  // 使用 showModal() 方法打开弹窗
+        }
+
+        function closeAddPlanModal(patientId) {
+            const modal = document.getElementById('addPlanModal' + patientId);
+            modal.close();  // 使用 close() 方法关闭弹窗
+        }
+
+        function closeDeletePlanModal(patientId) {
+            const modal = document.getElementById('deletePlanModal' + patientId);
+            modal.close();  // 使用 close() 方法关闭弹窗
+        }
+
+        function closeEditPlanModal(patientId) {
+            const modal = document.getElementById('editPlanModal' + patientId);
+            modal.close();  // 使用 close() 方法关闭弹窗
+        }
+
+        function deleteHealthPlans(event) {
+            event.preventDefault();  // 阻止默认表单提交
+
+            var selectedPlanIds = [];
+            document.querySelectorAll('input[name="plan_checkbox"]:checked').forEach(function (checkbox) {
+                selectedPlanIds.push(checkbox.value);
+            });
+
+            if (selectedPlanIds.length > 0) {
+                var formData = new FormData();
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                selectedPlanIds.forEach(function (planId) {
+                    formData.append('plans[]', planId);
+                });
+
+                fetch(`{% url 'dr_delete_health_plans' %}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            alert(data.message);
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert("删除失败: " + error);
+                    });
+            } else {
+                alert('请先选择计划');
+            }
+        }
+
+        function fillPlanDetails(selectElement) {
+            var selectedOption = selectElement.options[selectElement.selectedIndex];
+
+            if (selectedOption.value) {
+                // 填充表单字段
+                document.querySelector('input[name="edit_title"]').value = selectedOption.getAttribute('data-title');
+                document.querySelector('textarea[name="edit_description"]').value = selectedOption.getAttribute('data-description');
+                document.querySelector('input[name="edit_start_time"]').value = selectedOption.getAttribute('data-start-time');
+                document.querySelector('input[name="edit_due_time"]').value = selectedOption.getAttribute('data-due-time');
+                document.querySelector('input[name="edit_frequency"]').value = selectedOption.getAttribute('data-frequency');
+            } else {
+                // 如果没有选择任何计划，清空表单
+                document.querySelector('input[name="edit_title"]').value = '';
+                document.querySelector('textarea[name="edit_description"]').value = '';
+                document.querySelector('input[name="edit_start_time"]').value = '';
+                document.querySelector('input[name="edit_due_time"]').value = '';
+                document.querySelector('input[name="edit_frequency"]').value = '';
+            }
+        }
+
+        function submitHealthPlan(patientId) {
+            // 获取表单数据
+            var formData = new FormData(document.querySelector('#editPlanForm' + patientId));
+            // 打印表单数据调试
+            formData.forEach((value, key) => {
+                console.log(key, value);
+            });
+            // 发送 AJAX 请求
+            fetch('{% url "dr_edit_health_plan" %}', {
+                method: 'POST',
+                body: formData, // 将表单数据作为请求体
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // 添加 CSRF token
+                }
+            })
+                .then(response => response.json()) // 解析 JSON 响应
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('修改成功！');
+                        // 你可以根据需要关闭弹窗或更新页面数据
+                        closeEditPlanModal(patientId);  // 修改关闭弹窗函数
+                        location.reload();  // 刷新页面或更新页面数据
+                    } else {
+                        alert('修改失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('请求失败:', error);
+                    alert('请求失败，请稍后再试');
+                });
+        }
+
+    </script>
+
+{% endblock %}

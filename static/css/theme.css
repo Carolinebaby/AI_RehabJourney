@@ -1,0 +1,61 @@
+:root {
+    --dark-color: #133e87; /* 主题色 */
+    --darker-color: #102f6a; /* 暗色 */
+    --light-color: #4a86f3; /* 亮色 */
+}
+
+/* 全局字体设置 */
+@font-face {
+    font-family: 'HarmonyOS-Sans';
+    src: url('/static/font/HarmonyOS-Sans.woff2') format('woff2');
+}
+
+body {
+    font-family: 'HarmonyOS-Sans', sans-serif;
+}
+
+/* 页面布局样式 */
+.layout-container {
+    display: flex;
+    max-width: 82%;
+    margin: 20px auto;
+    height: 100vh;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative; /* 确保其可以包含sticky元素 */
+}
+
+/* 左侧边栏样式 */
+.side-bar {
+    flex: 0 0 5%; /* 左侧占比 5% */
+    background-color: #133e87;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+}
+
+/* 主要内容区域 */
+.main-content {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    /* 去掉滚动条样式 */
+    max-height: 100vh; /* 没有滚动条，内容区域高度适应屏幕 */
+}
+
+/* 导航栏 */
+#header-menu {
+    margin-top: -10px; /* 去除顶部的外边距 */
+    padding-top: 20px; /* 去除顶部的内边距 */
+}
+
+/* 滚动区域样式 */
+.scrollable-content {
+    max-height: calc(100vh - 120px); /* 导航栏和其他顶部区域总高度 */
+    overflow-y: auto;
+    padding: 20px;
+}

@@ -1,0 +1,234 @@
+{% extends 'doctor_base.html' %}
+{% block title_block %}
+    <title>患者管理- 康途同行</title>
+{% endblock %}
+{% block css_block %}
+    <style>
+        #menu-patient-manage {
+            background-color: #133e87;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+
+{% block main_body %}
+
+    <div class="scrollable-content">
+        <div class="px-6 py-4">
+            <h1 class="text-3xl font-bold mb-6 flex justify-between items-center">
+                患者管理
+                <button id="add-patient-btn" class="btn btn-sm bg-[#133e87] text-white rounded-md hover:bg-sky-700">
+                    添加患者
+                </button>
+            </h1>
+
+            <div id="patients-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 患者卡片将动态插入这里 -->
+            </div>
+        </div>
+
+        <!-- Modal for adding patient -->
+        <input type="checkbox" id="add-patient-modal" class="modal-toggle"/>
+        <div class="modal">
+            <div class="modal-box">
+                <h2 class="text-xl font-bold mb-4">添加新患者</h2>
+                <form id="add-patient-form" method="POST" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label for="username" class="block text-sm font-medium">患者用户名</label>
+                        <input type="text" id="username" name="username" class="input input-bordered w-full rounded-md"
+                               required>
+                        <p id="username-error" class="text-red-500 text-sm mt-1 hidden">患者用户号无效！</p>
+                    </div>
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium">开始日期</label>
+                        <input type="date" id="start_date" name="start_date"
+                               class="input input-bordered w-full rounded-md"
+                               required>
+                    </div>
+                    <div>
+                        <label for="therapeutic_goal" class="block text-sm font-medium">治疗目标</label>
+                        <textarea id="therapeutic_goal" name="therapeutic_goal"
+                                  class="textarea textarea-bordered w-full rounded-md"
+                                  placeholder="请输入治疗目标"></textarea>
+                    </div>
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium">结束日期</label>
+                        <input type="date" id="end_date" name="end_date" class="input input-bordered w-full rounded-md">
+                        <p id="date-error" class="text-red-500 hidden">时间设置无效</p>
+                    </div>
+
+                    <div class="modal-action">
+                        <label for="add-patient-modal" class="btn">取消</label>
+                        <button type="submit" id="submit-btn" class="btn btn-primary" disabled>添加患者</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const fetchPatientsURL = "{% url 'dr_fetch_patient' %}";
+
+            // Fetch patients data on page load
+            fetchPatients();
+
+            function fetchPatients() {
+                fetch(fetchPatientsURL, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Content-Type": "application/json",
+                    },
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const container = document.getElementById("patients-container");
+                        container.innerHTML = "";
+
+                        if (data.patients && data.patients.length > 0) {
+                            data.patients.forEach((patient) => {
+                                container.innerHTML += `
+                        <a href="patient_info/${patient.patient_id}/" class="card-link">
+                            <div class="card bg-base-100 shadow-xl">
+                                <div class="card-body">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-16 h-16 mask mask-circle">
+                                            <img src="${patient.avatar}" alt="${patient.username}" class="w-full h-full object-cover">
+                                        </div>
+                                        <div>
+                                            <h2 class="card-title text-lg font-bold">${patient.last_name} ${patient.first_name}</h2>
+                                            <p class="text-sm text-gray-600">
+                                                年龄: ${patient.age || "未知"} | 性别: ${patient.gender}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <p>当前诊断: <span>${patient.current_diagnosis || "未提供"}</span></p>
+                                        <p>治疗目标: ${patient.therapeutic_goal || "未提供"}</p>
+                                        <p>开始日期: ${patient.start_date}</p>
+                                        <p>结束日期: ${patient.end_date || "无"}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>`;
+                            });
+                        } else {
+                            container.innerHTML = "<p class='text-center'>暂无患者信息</p>";
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching patients:", error);
+                        alert("加载患者信息失败，请稍后重试！");
+                    });
+            }
+
+            const addPatientButton = document.getElementById('add-patient-btn');
+            const modal = document.getElementById('add-patient-modal');
+            const usernameInput = document.getElementById('username');
+            const errorText = document.getElementById('username-error');
+            const addPatientForm = document.getElementById('add-patient-form');
+            const submitButton = document.getElementById('submit-btn');
+
+            // Show modal when the "Add Patient" button is clicked
+            addPatientButton.addEventListener('click', () => {
+                modal.checked = true;  // Open modal
+                clearForm();  // Clear the form when modal is opened
+            });
+
+            // Clear the form inputs
+            function clearForm() {
+                usernameInput.value = '';
+                document.getElementById('start_date').value = '';
+                document.getElementById('end_date').value = '';
+                errorText.classList.add('hidden');
+                submitButton.disabled = true;
+            }
+
+            // Real-time check for username when the input value changes
+            usernameInput.addEventListener('input', async () => {
+                const username = usernameInput.value;
+                await checkPatientUsername(username);
+            });
+
+            // Async function to check if the patient username is valid
+            async function checkPatientUsername(username) {
+                if (username.trim() === '') {
+                    errorText.classList.add('hidden');
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                try {
+                    const response = await fetch("{% url 'dr_check_patient_username' %}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({username: username}),
+                    });
+                    const data = await response.json();
+
+                    if (data.valid) {
+                        errorText.classList.add('hidden');
+                        submitButton.disabled = false;
+                    } else {
+                        errorText.classList.remove('hidden');
+                        errorText.textContent = data.message;
+                        submitButton.disabled = true;
+                    }
+                } catch (err) {
+                    console.error('Error checking patient username:', err);
+                    errorText.classList.remove('hidden');
+                    errorText.textContent = '无法验证用户名，请稍后再试。';
+                    submitButton.disabled = true;
+                }
+            }
+
+            // Handle form submission with date validation
+            addPatientForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const startDateInput = document.getElementById('start_date');
+                const endDateInput = document.getElementById('end_date');
+                const errorDateText = document.getElementById('date-error');
+
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+
+                if (startDate > endDate) {
+                    errorDateText.classList.remove('hidden');
+                    errorDateText.textContent = "起始日期不能晚于结束日期";
+                    return;
+                } else {
+                    errorDateText.classList.add('hidden');
+                }
+
+                // Submit the form if everything is valid
+                const formData = new FormData(addPatientForm);
+
+                fetch("{% url 'dr_add_patient' %}", {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("患者添加成功！");
+                            modal.checked = false; // Close modal
+                            clearForm(); // Clear form inputs
+                            fetchPatients(); // Reload patients list
+                        } else {
+                            alert("患者添加失败！");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("添加患者失败，请稍后重试！");
+                    });
+            });
+        });
+    </script>
+{% endblock %}
