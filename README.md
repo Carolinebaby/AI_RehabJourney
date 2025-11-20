@@ -5,7 +5,7 @@
 
 架构：Python + Django + CSS/JS/HTML
 
-项目文档: [康途同行网站设计文档.md](https://github.com/Carolinebaby/RehabJourney/blob/main/doc/%E5%BA%B7%E9%80%94%E5%90%8C%E8%A1%8C%E7%BD%91%E7%AB%99%E8%AE%BE%E8%AE%A1%E6%96%87%E6%A1%A3.md)
+项目文档: [康途同行网站设计文档.md](https://github.com/Carolinebaby/AI_RehabJourney/blob/main/doc/%E5%BA%B7%E9%80%94%E5%90%8C%E8%A1%8C%E7%BD%91%E7%AB%99%E8%AE%BE%E8%AE%A1%E6%96%87%E6%A1%A3.md)
 
 项目结构：
 
