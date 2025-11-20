@@ -1,5 +1,5 @@
-# RehabJourney
-2024年秋季学期数据库系统原理课程大作业
+# AI+RehabJourney
+在原本大作业 RehabJourney 基础上，加入了 AI 大语言模型，实现 健康数据 智能化分析。
 
 ## 康途同行，简易版远程康复平台
 
