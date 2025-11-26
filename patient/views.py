@@ -777,7 +777,7 @@ def ai_analyze_health_view(request):
         )
         result = response["message"]["content"]
         result = clean_ai_output(result)
-        print(result)
+
         return JsonResponse(
             {
                 "status": "success",
